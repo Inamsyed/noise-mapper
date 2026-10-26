@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
+  <title>Noise Mapper</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Noise Mapper</h1>
+      <p class="sub">Saves loudness and location once per second</p>
+    </header>
+
+    <div id="warning" class="warning" hidden></div>
+
+    <!-- Live loudness readout -->
+    <section class="card meter">
+      <div class="level">
+        <span id="dbValue">--</span>
+        <span id="dbUnit">dBFS</span>
+      </div>
+      <div class="bar"><div id="dbBar"></div></div>
+      <canvas id="chart" aria-label="Loudness over the last two minutes"></canvas>
+    </section>
+
+    <!-- Status of each part of the app -->
+    <section class="card stats">
+      <div><span class="label">Status</span><span id="status">Ready</span></div>
+      <div><span class="label">Readings</span><span id="rowCount">0</span></div>
+      <div><span class="label">Time</span><span id="elapsed">0:00</span></div>
+      <div><span class="label">GPS</span><span id="gps">off</span></div>
+      <div class="wide"><span class="label">Microphone</span><span id="mic">off</span></div>
+      <div class="wide"><span class="label">Screen</span><span id="wake">-</span></div>
+    </section>
+
+    <!-- Controls -->
+    <section class="card controls">
+      <label>Session name
+        <input id="sessionInput" placeholder="e.g. walk01 (optional)" autocomplete="off" autocapitalize="off">
+      </label>
+      <button id="startBtn" class="primary">Start recording</button>
+      <div class="row">
+        <button id="downloadBtn">Download CSV</button>
+        <button id="shareBtn" hidden>Share CSV</button>
+      </div>
+      <button id="clearBtn" class="danger">Clear all readings</button>
+    </section>
+
+    <details class="card">
+      <summary>Calibration</summary>
+      <p>A phone microphone gives <b>relative</b> loudness (dBFS: 0 is the loudest the mic can take, so normal sounds are negative).
+        To get approximate real decibels, put the phone next to a calibrated sound meter app (e.g. NIOSH SLM),
+        compare the two numbers and enter the difference here.</p>
+      <label>Offset (dB)
+        <input id="offsetInput" type="number" inputmode="decimal" step="0.5" value="0">
+      </label>
+      <p class="hint">Example: this app shows -42 and the meter shows 55, so the offset is 97.</p>
+    </details>
+
+    <details class="card">
+      <summary>Tips for a good recording</summary>
+      <ul>
+        <li>Keep this page open and the screen on. iPhone stops the mic if you lock the phone or switch apps.</li>
+        <li>Settings → Display &amp; Brightness → Auto-Lock → Never, just in case.</li>
+        <li>Hold the phone in your hand with the bottom (mic) uncovered. Avoid your pocket.</li>
+        <li>Walk past both busy and quiet places. 1,000 readings is about 17 minutes.</li>
+        <li>Readings are saved on the phone as you go, so they survive a page reload.</li>
+      </ul>
+    </details>
+
+    <footer>No audio is recorded or stored. Only one loudness number per second is kept.</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
