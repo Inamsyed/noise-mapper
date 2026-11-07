@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// Firestore security rules for Noise Mapper.
+// Paste into Firebase console -> Firestore Database -> Rules -> Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // One document per walk. A phone can only create and close its own sessions.
+    match /sessions/{sessionId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if false;
+    }
+
+    // One document per second. Readings can be added but never edited or deleted,
+    // must belong to the phone that sends them, and must carry the server's own timestamp.
+    match /readings/{readingId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['userId', 'sessionDocId', 'unixMs', 'serverTime'])
+        && request.resource.data.serverTime == request.time;
+      allow update, delete: if false;
+    }
+
+    // Open data (Task 2) is written only by the collector script, which uses
+    // admin credentials and bypasses these rules. Phones can read it but not write it.
+    match /opendata/{document=**} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+  }
+}

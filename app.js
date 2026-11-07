@@ -176,6 +176,10 @@ function saveRow() {
   ];
   app.rows.push(row);
   if (app.rows.length % 5 === 0) saveRows();
+  // Send this reading to the cloud straight away (see cloud.js).
+  if (window.NoiseCloud) {
+    window.NoiseCloud.uploadReading(Object.fromEntries(COLUMNS.map((c, i) => [c, row[i]])));
+  }
   ui.rowCount.textContent = app.rows.length;
   drawChart();
 }
@@ -281,6 +285,7 @@ async function start() {
   app.frames = [];
   app.recording = true;
   app.startedAt = Date.now();
+  if (window.NoiseCloud) window.NoiseCloud.startSession({ sessionId: app.sessionId, offset: app.offset });
 
   startGps();
   keepScreenOn();
@@ -307,6 +312,7 @@ function stop() {
   if (app.wakeLock) app.wakeLock.release().catch(() => {});
   app.wakeLock = null;
   saveRows();
+  if (window.NoiseCloud) window.NoiseCloud.endSession();
 
   ui.startBtn.textContent = 'Start recording';
   ui.startBtn.classList.remove('recording');

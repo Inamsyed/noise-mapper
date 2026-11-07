@@ -35,6 +35,7 @@
       <div><span class="label">GPS</span><span id="gps">off</span></div>
       <div class="wide"><span class="label">Microphone</span><span id="mic">off</span></div>
       <div class="wide"><span class="label">Screen</span><span id="wake">-</span></div>
+      <div class="wide"><span class="label">Cloud (Firebase)</span><span id="cloud">loading…</span></div>
     </section>
 
     <!-- Controls -->
@@ -69,11 +70,13 @@
         <li>Hold the phone in your hand with the bottom (mic) uncovered. Avoid your pocket.</li>
         <li>Walk past both busy and quiet places. 1,000 readings is about 17 minutes.</li>
         <li>Readings are saved on the phone as you go, so they survive a page reload.</li>
+        <li>Each reading is also uploaded to the cloud (Firebase) straight away. After you stop, keep the page open until "waiting" is 0.</li>
       </ul>
     </details>
 
     <footer>No audio is recorded or stored. Only one loudness number per second is kept.</footer>
   </main>
   <script src="app.js"></script>
+  <script type="module" src="cloud.js"></script>
 </body>
 </html>
