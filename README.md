@@ -74,3 +74,46 @@ Blank cells mean the value was not available (e.g. no GPS fix yet, or the microp
 - Phone microphones are uncalibrated and differ between models. Values are relative unless an offset is set.
 - No frequency weighting (dB(A)) is applied.
 - GPS accuracy drops between tall buildings and indoors.
+
+---
+
+# Assignment 3: cloud (Google Firebase / Cloud Firestore)
+
+## Task 1: real-time upload of the phone's readings
+
+| File | What it does |
+|---|---|
+| `cloud.js` | Signs the phone in anonymously, creates a `sessions` document on Start, uploads one `readings` document every second, closes the session on Stop, and shows "uploaded / waiting" on screen |
+| `firestore.rules` | Security rules: only signed-in users can add readings under their own ID; readings can't be edited or deleted; `opendata` is read-only for phones |
+
+**To run:** nothing extra. Open the live app (https://inamsyed.github.io/noise-mapper/) or serve the folder locally (`python -m http.server 8000`) and press Start. Readings appear in the Firebase console under Firestore → `readings` within a second.
+
+**Using your own Firebase project instead:** create a project, a Firestore database and enable Anonymous sign-in, register a Web app, paste its `firebaseConfig` into `cloud.js`, and publish `firestore.rules` in Firestore → Rules.
+
+## Task 2: open-data collector
+
+`collector/collect_opendata.py` fetches Dublin City Council's noise monitors (Sonitus API) and Open-Meteo weather, and writes them to Firestore under `opendata/`.
+
+**To run:**
+1. Install the libraries:
+   ```bash
+   pip install -r collector/requirements.txt
+   ```
+2. Download a service account key (Firebase console → Project settings → Service accounts → Generate new private key), save it as `serviceAccount.json` in this folder. **Never commit it** (it is in `.gitignore`).
+3. Set the council's public API login, published on https://data.gov.ie/dataset/sonitus. In PowerShell:
+   ```powershell
+   $env:SONITUS_USER = "<username from data.gov.ie>"
+   $env:SONITUS_PASS = "<password from data.gov.ie>"
+   ```
+4. Run once, or keep running every 5 minutes:
+   ```bash
+   python collector/collect_opendata.py
+   python collector/collect_opendata.py --loop
+   ```
+
+Firestore layout written by the collector:
+```
+opendata/dcc_noise/monitors/{serial}          one doc per noise monitor
+opendata/dcc_noise/readings/{serial}_{time}   one doc per monitor per 5 minutes
+opendata/weather/readings/{time}              one doc per weather update
+```

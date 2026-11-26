@@ -1,7 +1,9 @@
 .claude/
 *.csv
 report/
+report_a3/
 submission/
+submission_a3/
 # Firebase admin keys must never be committed
 serviceAccount*.json
 *-firebase-adminsdk-*.json
